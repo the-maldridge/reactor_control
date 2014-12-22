@@ -1,7 +1,6 @@
 local screen =  peripheral.wrap('top')
 local reactor = peripheral.wrap('BigReactors-Reactor_1')
 local energy_max = 10000000
-local color = false
 
 screen.setTextScale(0.5)
 local sx, sy = screen.getSize()
@@ -11,11 +10,15 @@ local statistics = {
    {
       fmt = 'Online | %s',
       f = function()
-	     if color then
+	     if term.isColor() then
 		if reactor.getActive() then
-		   return tostring(colors.green + "ONLINE")
+		   term.setTextColor(colors.green)
+		   return tostring("ONLINE")
+		   term.setTextColor(colors.white)
 		else
-		   return tostring(colors.red + "OFFLINE")
+		   term.setTextColor(colors.red)
+		   return tostring("OFFLINE")
+		   term.setTextColor(colors.white)
 		end
 	     else
 		return tostring(reactor.getActive())
