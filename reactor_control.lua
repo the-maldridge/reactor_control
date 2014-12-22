@@ -1,5 +1,7 @@
 local screen =  peripheral.wrap('top')
 local reactor = peripheral.wrap('BigReactors-Reactor_1')
+local energy_max = 10000000
+local color = false
 
 screen.setTextScale(0.5)
 local sx, sy = screen.getSize()
@@ -8,7 +10,16 @@ local sx, sy = screen.getSize()
 local statistics = {
    {
       fmt = 'Online | %s',
-      f = function() return tostring(reactor.getActive()) end
+      f = function()
+	     if color then
+		if reactor.getActive() then
+		   return tostring(colors.green + "ONLINE")
+		else
+		   return tostring(colors.red + "OFFLINE")
+		end
+	     else
+		return tostring(reactor.getActive())
+	  end
    },
    {
       fmt = 'Energy Stored | %d RF',
@@ -57,7 +68,6 @@ local function redraw()
    screen.write('Hold Ctrl+T to terminate...')
 end
 
-local energy_max = 10000000
 local function update()
    local energy_curr = reactor.getEnergyStored()
    local energy_frac = energy_curr / energy_max
