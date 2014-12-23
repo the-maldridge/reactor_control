@@ -18,6 +18,7 @@ local statistics = {
 		end
 	     else
 		return tostring(reactor.getActive())
+	     end
 	  end
    },
    {
