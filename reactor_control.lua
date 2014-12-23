@@ -12,13 +12,9 @@ local statistics = {
       f = function()
 	     if term.isColor() then
 		if reactor.getActive() then
-		   term.setTextColor(colors.green)
-		   return tostring("ONLINE")
-		   term.setTextColor(colors.white)
+		   return "{green}ONLINE"
 		else
-		   term.setTextColor(colors.red)
-		   return tostring("OFFLINE")
-		   term.setTextColor(colors.white)
+		   return "{red}OFFLINE"
 		end
 	     else
 		return tostring(reactor.getActive())
@@ -58,14 +54,47 @@ local statistics = {
    }
 }
 
+local function color_write(screen, col_table, str)
+   assert(col_table.white, 'the color white must exist')
+   screen.setTextColor(col_table.white)
+   
+   while #str > 0 do
+      local pos_left, pos_right = str:find('{'), str:find('}')
+      
+      if pos_left then
+	 assert(pos_right and pos_right > pos_left, 'if we find a left bracket we must also find a right bracket')
+	 
+	 local before = str:sub(1, pos_left - 1)
+	 local col = str:sub(pos_left + 1, pos_right - 1)
+	 
+	 assert(col_table[col], 'col_table must contain the bracketed phrase')
+	 
+	 screen.write(before)
+	 screen.setTextColor(col_table[col])
+	 
+	 str = str:sub(pos_right + 1)
+      else
+	 screen.write(str)
+	 
+	 str = ''
+      end
+   end
+   
+   screen.setTextColor(col_table.white)
+end
+
 local function redraw()
    screen.clear()
    screen.setCursorPos(1, 1)
 
    for i, stat in ipairs(statistics) do
       screen.setCursorPos(math.floor(sx / 2) - stat.fmt:find('|'), i + 1)
-      screen.write(string.format(stat.fmt, stat.f()))
-   end
+      if term.isColor() then
+	 color_write(screen, colors, string.format(stat.fmt, stat.f()))
+      else
+	 screen.write(string.format(stat.fmt, stat.f()))
+      end
+   end 
 
    screen.setCursorPos(1, sy)
    screen.write('Hold Ctrl+T to terminate...')
